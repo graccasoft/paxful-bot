@@ -1,6 +1,6 @@
 package com.graccasoft.paxful.service;
 
-import com.graccasoft.paxful.dto.PaxfulLoginResponse;
+import com.graccasoft.paxful.model.PaxfulLoginResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
@@ -33,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
         //todo fetch in local storage first
         PaxfulLoginResponse loginResponse = getJwtFromPaxful();
         System.out.println(loginResponse);
-        return loginResponse.access_token();
+        return loginResponse.accessToken();
     }
 
     private PaxfulLoginResponse getJwtFromPaxful(){
