@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "*")
 public class BotController {
 
     private final BotOptionService botOptionService;
@@ -23,7 +24,7 @@ public class BotController {
     }
 
     @PostMapping("options")
-    public GenericResponse updateOption(@RequestBody OptionRequest optionRequest){
+    public GenericResponse updateOption(@RequestBody List<OptionRequest> optionRequest){
         botOptionService.saveOption(optionRequest);
         return new GenericResponse(true, "Option successfully updates");
     }

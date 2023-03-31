@@ -23,12 +23,15 @@ public class BotOptionServiceImpl implements BotOptionService {
     }
 
     @Override
-    public BotOption saveOption(OptionRequest optionRequest) {
-        BotOption optionToSave = botOptionRepository.findByName(optionRequest.name())
-                .orElse( new BotOption(optionRequest.name(), optionRequest.value()) );
+    public List<BotOption> saveOption(List<OptionRequest> optionRequests) {
+        optionRequests.forEach((optionRequest)->{
+            BotOption optionToSave = botOptionRepository.findByName(optionRequest.name())
+                    .orElse( new BotOption(optionRequest.name(), optionRequest.value()) );
 
-        optionToSave.setValue(optionRequest.value());
-        return botOptionRepository.save(optionToSave);
+            optionToSave.setValue(optionRequest.value());
+            botOptionRepository.save(optionToSave);
+        });
+        return botOptionRepository.findAll();
     }
 
     @Override

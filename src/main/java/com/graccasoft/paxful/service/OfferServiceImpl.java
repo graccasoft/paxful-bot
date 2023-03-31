@@ -1,9 +1,6 @@
 package com.graccasoft.paxful.service;
 
-import com.graccasoft.paxful.model.BotOption;
-import com.graccasoft.paxful.model.GetOfferResponse;
-import com.graccasoft.paxful.model.Offer;
-import com.graccasoft.paxful.model.UpdateOfferRequest;
+import com.graccasoft.paxful.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
@@ -70,6 +67,23 @@ public class OfferServiceImpl implements OfferService {
         }
 
         return null;
+    }
+
+    @Override
+    public void updateOffer(UpdateOfferRequest updateOfferRequest) {
+        log.info("Updating offer: {}", updateOfferRequest);
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.put("offer_hash", Collections.singletonList(updateOfferRequest.offer_hash()));
+        formData.put("margin", Collections.singletonList(updateOfferRequest.margin().toString()));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth( jwt );
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(formData, headers);
+
+        UpdateOfferResponse updateOfferResponse = restTemplate.postForObject("https://api.paxful.com/paxful/v1/offer/update-price",request, UpdateOfferResponse.class);
+
+        log.info("Updated offer: {}",updateOfferResponse);
     }
 
     private Offer getOffer(String hashId){

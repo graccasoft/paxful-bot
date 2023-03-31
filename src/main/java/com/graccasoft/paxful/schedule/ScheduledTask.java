@@ -28,12 +28,15 @@ public class ScheduledTask {
         log.info("In the task now");
 
         try{
-            BotOption botStatus = botOptionService.getOption("bot_status");
-            if(botStatus.getValue().equals("ON")){
+            BotOption botStatus = botOptionService.getOption("bot_running");
+            if(botStatus.getValue().equals("1")){
                 UpdateOfferRequest offerRequest = offerService.calculateMyOfferNewRate();
                 if( offerRequest != null ){
+                    offerService.updateOffer(offerRequest);
                     //update off
                 }
+            }else{
+                log.info("Bot is off");
             }
         }catch(Exception ex){
             log.info(ex.getMessage());

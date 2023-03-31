@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface BotOptionService {
     List<BotOption> getAllOptions();
-    BotOption saveOption(OptionRequest optionRequest);
+    List<BotOption> saveOption(List<OptionRequest> optionRequest);
     BotOption getOption(String name);
 }

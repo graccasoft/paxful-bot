@@ -19,5 +19,6 @@ public interface OfferService {
     Offer fetchMyOffer();
 
     UpdateOfferRequest calculateMyOfferNewRate();
+    void updateOffer(UpdateOfferRequest updateOfferRequest);
 
 }
