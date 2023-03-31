@@ -1,5 +1,6 @@
 package com.graccasoft.paxful.service;
 
+import com.graccasoft.paxful.model.BotOption;
 import com.graccasoft.paxful.model.GetOfferResponse;
 import com.graccasoft.paxful.model.Offer;
 import com.graccasoft.paxful.model.UpdateOfferRequest;
@@ -18,25 +19,23 @@ import java.util.*;
 @Service
 public class OfferServiceImpl implements OfferService {
 
-    private final List<String> competitionIds;
 
-    private final String myHashId;
+    private final BotOptionService botOptionService;
     private final RestTemplate restTemplate;
-    private final AuthService authService;
     private final String jwt;
 
-    public OfferServiceImpl(RestTemplateBuilder templateBuilder, AuthService authService) {
-        this.authService = authService;
-        this.myHashId = "VGer81ZPnjD";
+    public OfferServiceImpl(BotOptionService botOptionService, RestTemplateBuilder templateBuilder, AuthService authService) {
+        this.botOptionService = botOptionService;
         this.restTemplate = templateBuilder.build();
-        this.competitionIds =
-                Arrays.asList( "xAGoEaZdkoV,OkayAccentor2,MdTrDUmJoqf".split(",") ) ;
 
-        this.jwt = this.authService.getJwt();
+        this.jwt = authService.getJwt();
     }
 
     @Override
     public List<Offer> fetchAllCompetitionOffers() {
+
+        BotOption competition = botOptionService.getOption("competition");
+        List<String> competitionIds = Arrays.stream(competition.getValue().split(",")).toList();
         List<Offer> offers = new ArrayList<>();
         competitionIds.forEach(hashId->{
             offers.add(getOffer(hashId));
@@ -46,18 +45,19 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public Offer fetchMyOffer() {
-        return getOffer(myHashId);
+        BotOption myAdd = botOptionService.getOption("my_add");
+        return getOffer(myAdd.getValue());
     }
 
     @Override
     public UpdateOfferRequest calculateMyOfferNewRate() {
-
+        BotOption myAdd = botOptionService.getOption("my_add");
         //find the offer with the highest margin
         List<Offer> sorted = fetchAllCompetitionOffers();
 
         log.info("Sorted offers: {}", sorted);
         if( sorted.size() > 0 ){
-            Offer myOffer = getOffer(myHashId);
+            Offer myOffer = getOffer(myAdd.getValue());
             log.info("My offer: {}", myOffer);
             BigDecimal highestMargin = sorted.get(sorted.size()-1 ).margin();
             if( myOffer.margin().compareTo( highestMargin ) > 0 ){

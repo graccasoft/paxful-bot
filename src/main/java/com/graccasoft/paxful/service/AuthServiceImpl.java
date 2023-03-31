@@ -32,7 +32,6 @@ public class AuthServiceImpl implements AuthService {
     public String getJwt() {
         //todo fetch in local storage first
         PaxfulLoginResponse loginResponse = getJwtFromPaxful();
-        System.out.println(loginResponse);
         return loginResponse.accessToken();
     }
 
