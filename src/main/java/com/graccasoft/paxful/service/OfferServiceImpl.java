@@ -1,16 +1,14 @@
 package com.graccasoft.paxful.service;
 
 import com.graccasoft.paxful.model.*;
+import com.graccasoft.paxful.repository.OfferRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -18,51 +16,60 @@ public class OfferServiceImpl implements OfferService {
 
 
     private final BotOptionService botOptionService;
-    private final RestTemplate restTemplate;
-    private final AuthService authService;
-    private final String API_BASE_URL = "https://api.noones.com/noones/v1/";
+    private final OfferRepository offerRepository;
 
-    public OfferServiceImpl(BotOptionService botOptionService, RestTemplateBuilder templateBuilder, AuthService authService) {
+
+    public OfferServiceImpl(BotOptionService botOptionService, OfferRepository offerRepository) {
         this.botOptionService = botOptionService;
-        this.restTemplate = templateBuilder.build();
-
-        this.authService = authService;
+        this.offerRepository = offerRepository;
     }
 
     @Override
-    public List<Offer> fetchAllCompetitionOffers() {
+    public List<Offer> fetchAllCompetitionOffersInOrder() {
 
         BotOption competition = botOptionService.getOption("competition");
         List<String> competitionIds = Arrays.stream(competition.getValue().split(",")).toList();
         List<Offer> offers = new ArrayList<>();
         competitionIds.forEach(hashId->{
-            offers.add(getOffer(hashId));
+            offers.add(  offerRepository.getOffer(hashId));
         });
-        return offers;
+        
+        return offers
+                .stream()
+                .sorted(Comparator.comparing(Offer::margin) )
+                .collect(Collectors.toList());
     }
 
     @Override
     public Offer fetchMyOffer() {
         BotOption myAdd = botOptionService.getOption("my_add");
-        return getOffer(myAdd.getValue());
+        return offerRepository.getOffer(myAdd.getValue());
+    }
+
+    @Override
+    public void updateOffer(UpdateOfferRequest offerRequest) {
+        offerRepository.updateOffer(offerRequest);
     }
 
     @Override
     public UpdateOfferRequest calculateMyOfferNewRate() {
         BotOption myAdd = botOptionService.getOption("my_add");
         //find the offer with the highest margin
-        List<Offer> sorted = fetchAllCompetitionOffers();
+        List<Offer> sorted = fetchAllCompetitionOffersInOrder();
 
         log.info("Sorted offers: {}", sorted);
         if( sorted.size() > 0 ){
-            Offer myOffer = getOffer(myAdd.getValue());
+            Offer myOffer = offerRepository.getOffer(myAdd.getValue());
             log.info("My offer: {}", myOffer);
             BigDecimal highestMargin = sorted.get(sorted.size()-1 ).margin();
             if( myOffer.margin().compareTo( highestMargin ) > 0 ){
                 return null;
             }
-
-            BigDecimal newMargin = highestMargin.subtract ( highestMargin.multiply(BigDecimal.valueOf(0.1f)) );
+            BigDecimal increaseRate =
+                    new BigDecimal( botOptionService.getOption("increase_rate").getValue() )
+                            .divide(BigDecimal.valueOf(100), new MathContext(8))
+                            .add(BigDecimal.ONE);
+            BigDecimal newMargin = highestMargin.multiply (increaseRate );
             log.info("New margin: {}", newMargin);
             return new UpdateOfferRequest(newMargin, myOffer.id());
         }
@@ -70,35 +77,5 @@ public class OfferServiceImpl implements OfferService {
         return null;
     }
 
-    @Override
-    public void updateOffer(UpdateOfferRequest updateOfferRequest) {
-        log.info("Updating offer: {}", updateOfferRequest);
-        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.put("offer_hash", Collections.singletonList(updateOfferRequest.offer_hash()));
-        formData.put("margin", Collections.singletonList(updateOfferRequest.margin().toString()));
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth( authService.getJwt() );
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(formData, headers);
-
-        UpdateOfferResponse updateOfferResponse = restTemplate.postForObject(API_BASE_URL + "offer/update-price",request, UpdateOfferResponse.class);
-
-        log.info("Updated offer: {}",updateOfferResponse);
-    }
-
-    private Offer getOffer(String hashId){
-        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.put("offer_hash", Collections.singletonList(hashId));
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth( authService.getJwt() );
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(formData, headers);
-
-        GetOfferResponse getOffer = restTemplate.postForObject(API_BASE_URL + "offer/get",request, GetOfferResponse.class);
-
-        log.info("Fetched offer: {}",getOffer.data());
-        return getOffer.data();
-    }
 }
