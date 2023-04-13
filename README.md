@@ -1,5 +1,5 @@
 # Paxful bot (now noones)
-This is a bot that update paxful user's offers so that they bit the competition.
+This is a bot that update paxful user's offers so that they beat the competition.
 The bot check offers at an interval and updates users offer depending on set parameters.
 The bot is controlled from a mobile app which is not included in this repository.
 
