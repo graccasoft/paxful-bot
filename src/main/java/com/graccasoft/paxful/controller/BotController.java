@@ -20,7 +20,7 @@ public class BotController {
 
     @GetMapping("ping")
     public GenericResponse ping(){
-        return new GenericResponse(true,"Version: 1.1");
+        return new GenericResponse(true,"Version: 1.2");
     }
 
     @PostMapping("options")
