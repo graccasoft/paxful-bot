@@ -19,8 +19,11 @@ public class CachingConfig {
         return new ConcurrentMapCacheManager("jwt");
     }
 
+    /**
+        Clear cached token and get fresh token every 12 hours
+     */
     @CacheEvict(value = "jwt", allEntries = true)
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 3200000)
     public void clearCache(){
         log.info("Emptying cache");
     }

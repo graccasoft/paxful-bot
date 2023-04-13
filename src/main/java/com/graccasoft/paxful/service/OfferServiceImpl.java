@@ -19,14 +19,14 @@ public class OfferServiceImpl implements OfferService {
 
     private final BotOptionService botOptionService;
     private final RestTemplate restTemplate;
-    private final String jwt;
+    private final AuthService authService;
     private final String API_BASE_URL = "https://api.noones.com/noones/v1/";
 
     public OfferServiceImpl(BotOptionService botOptionService, RestTemplateBuilder templateBuilder, AuthService authService) {
         this.botOptionService = botOptionService;
         this.restTemplate = templateBuilder.build();
 
-        this.jwt = authService.getJwt();
+        this.authService = authService;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class OfferServiceImpl implements OfferService {
         formData.put("margin", Collections.singletonList(updateOfferRequest.margin().toString()));
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth( jwt );
+        headers.setBearerAuth( authService.getJwt() );
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(formData, headers);
 
@@ -92,7 +92,7 @@ public class OfferServiceImpl implements OfferService {
         formData.put("offer_hash", Collections.singletonList(hashId));
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth( jwt );
+        headers.setBearerAuth( authService.getJwt() );
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(formData, headers);
 

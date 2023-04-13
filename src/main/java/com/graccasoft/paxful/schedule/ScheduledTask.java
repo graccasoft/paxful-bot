@@ -2,9 +2,9 @@ package com.graccasoft.paxful.schedule;
 
 import com.graccasoft.paxful.model.BotOption;
 import com.graccasoft.paxful.model.UpdateOfferRequest;
+import com.graccasoft.paxful.service.AuthService;
 import com.graccasoft.paxful.service.BotOptionService;
 import com.graccasoft.paxful.service.OfferService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,7 +18,7 @@ public class ScheduledTask {
     private final OfferService offerService;
     private final BotOptionService botOptionService;
 
-    public ScheduledTask(OfferService offerService, BotOptionService botOptionService) {
+    public ScheduledTask(OfferService offerService, BotOptionService botOptionService, AuthService authService) {
         this.offerService = offerService;
         this.botOptionService = botOptionService;
     }
@@ -26,7 +26,6 @@ public class ScheduledTask {
     @Scheduled(fixedRate = 60000)
     public void updateOffersTask(){
         log.info("In the task now");
-
         try{
             BotOption botStatus = botOptionService.getOption("bot_running");
             if(botStatus.getValue().equals("1")){
@@ -41,7 +40,6 @@ public class ScheduledTask {
         }catch(Exception ex){
             log.info(ex.getMessage());
         }
-
 
     }
 }
