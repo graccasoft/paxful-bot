@@ -20,6 +20,7 @@ public class OfferServiceImpl implements OfferService {
     private final BotOptionService botOptionService;
     private final RestTemplate restTemplate;
     private final String jwt;
+    private final String API_BASE_URL = "https://api.noones.com/noones/v1/";
 
     public OfferServiceImpl(BotOptionService botOptionService, RestTemplateBuilder templateBuilder, AuthService authService) {
         this.botOptionService = botOptionService;
@@ -81,7 +82,7 @@ public class OfferServiceImpl implements OfferService {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(formData, headers);
 
-        UpdateOfferResponse updateOfferResponse = restTemplate.postForObject("https://api.paxful.com/paxful/v1/offer/update-price",request, UpdateOfferResponse.class);
+        UpdateOfferResponse updateOfferResponse = restTemplate.postForObject(API_BASE_URL + "offer/update-price",request, UpdateOfferResponse.class);
 
         log.info("Updated offer: {}",updateOfferResponse);
     }
@@ -95,7 +96,7 @@ public class OfferServiceImpl implements OfferService {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(formData, headers);
 
-        GetOfferResponse getOffer = restTemplate.postForObject("https://api.paxful.com/paxful/v1/offer/get",request, GetOfferResponse.class);
+        GetOfferResponse getOffer = restTemplate.postForObject(API_BASE_URL + "offer/get",request, GetOfferResponse.class);
 
         log.info("Fetched offer: {}",getOffer.data());
         return getOffer.data();

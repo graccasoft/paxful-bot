@@ -18,9 +18,9 @@ public class BotController {
         this.botOptionService = botOptionService;
     }
 
-    @GetMapping
+    @GetMapping("ping")
     public GenericResponse ping(){
-        return new GenericResponse(true,"Version: 1.0");
+        return new GenericResponse(true,"Version: 1.1");
     }
 
     @PostMapping("options")
