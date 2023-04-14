@@ -23,7 +23,7 @@ public class ScheduledTask {
         this.botOptionService = botOptionService;
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 10000)
     public void updateOffersTask(){
         log.info("In the task now");
         try{

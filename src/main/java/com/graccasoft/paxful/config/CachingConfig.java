@@ -7,10 +7,12 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 @Configuration
 @EnableCaching
+@EnableScheduling
 @Slf4j
 public class CachingConfig {
 
@@ -23,7 +25,7 @@ public class CachingConfig {
         Clear cached token and get fresh token every 12 hours
      */
     @CacheEvict(value = "jwt", allEntries = true)
-    @Scheduled(fixedRate = 3200000)
+    @Scheduled(fixedRate = 43200000)
     public void clearCache(){
         log.info("Emptying cache");
     }

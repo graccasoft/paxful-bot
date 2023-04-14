@@ -6,6 +6,7 @@ import com.graccasoft.paxful.model.UpdateOfferRequest;
 import com.graccasoft.paxful.model.UpdateOfferResponse;
 import com.graccasoft.paxful.service.AuthService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,9 +25,9 @@ public class OfferRepository {
     private final RestTemplate restTemplate;
     private final String API_BASE_URL = "https://api.noones.com/noones/v1/";
 
-    public OfferRepository(AuthService authService, RestTemplate restTemplate) {
+    public OfferRepository(AuthService authService, RestTemplateBuilder templateBuilder) {
         this.authService = authService;
-        this.restTemplate = restTemplate;
+        this.restTemplate = templateBuilder.build();
     }
 
     public Offer getOffer(String hashId){
