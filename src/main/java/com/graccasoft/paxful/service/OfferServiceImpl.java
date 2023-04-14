@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class OfferServiceImpl implements OfferService {
 
 
+    public static final double MAXIMUM_PERCENTAGE_GAP = 0.01;
     private final BotOptionService botOptionService;
     private final OfferRepository offerRepository;
 
@@ -62,8 +63,17 @@ public class OfferServiceImpl implements OfferService {
             Offer myOffer = offerRepository.getOffer(myAdd.getValue());
             log.info("My offer: {}", myOffer);
             BigDecimal highestMargin = sorted.get(sorted.size()-1 ).margin();
+
+            //we are at the lead
             if( myOffer.margin().compareTo( highestMargin ) > 0 ){
-                return null;
+                //let's check if we are far off and come down a bit
+                //if we are not very high we just return null
+                if( myOffer.margin().subtract( highestMargin )
+                        .divide(highestMargin, new MathContext(8))
+                        .compareTo(BigDecimal.valueOf(MAXIMUM_PERCENTAGE_GAP)) < 0 ){
+
+                    return null;
+                }
             }
             BigDecimal increaseRate =
                     new BigDecimal( botOptionService.getOption("increase_rate").getValue() )

@@ -105,11 +105,7 @@ class OfferServiceImplTest {
     }
 
     @Test
-    void updateOffer() {
-    }
-
-    @Test
-    void calculateMyOfferNewRate() {
+    void canCalculateMyOfferNewRate() {
         //Given
         //my add
         given(botOptionService.getOption("my_add"))
@@ -175,5 +171,110 @@ class OfferServiceImplTest {
 
         //Then
         Assertions.assertEquals(0, offerRequest.margin().compareTo(BigDecimal.valueOf(1.52152)) );
+    }
+
+    @Test
+    void canReduceMarginIfVeryHigh() {
+        //Given
+        //my add
+        given(botOptionService.getOption("my_add"))
+                .willReturn(new BotOption("my_add","VGer81ZPnjD"));
+
+        given(offerRepository.getOffer("VGer81ZPnjD"))
+                .willReturn(new Offer(
+                        "VGer81ZPnjD",
+                        "BTC",
+                        "ZAR",
+                        "buy",
+                        BigDecimal.valueOf(10)
+                ));
+
+        //increase rate option
+        given(botOptionService.getOption("increase_rate"))
+                .willReturn(new BotOption("increase_rate","0.1"));
+
+        //competition adds/offers
+        given(botOptionService.getOption("competition"))
+                .willReturn(new BotOption("competition","sBqtB7oK5bv,Bn7SzybDrwC"));
+
+
+
+        given(offerRepository.getOffer("sBqtB7oK5bv"))
+                .willReturn(new Offer(
+                        "sBqtB7oK5bv",
+                        "BTC",
+                        "ZAR",
+                        "buy",
+                        BigDecimal.valueOf(7)
+                ));
+        given(offerRepository.getOffer("Bn7SzybDrwC"))
+                .willReturn(new Offer(
+                        "Bn7SzybDrwC",
+                        "BTC",
+                        "ZAR",
+                        "buy",
+                        BigDecimal.valueOf(9)
+                ));
+
+        //When
+        UpdateOfferRequest offerRequest = underTest.calculateMyOfferNewRate();
+
+        /* 9 * (1+ ( 0.1/100 ) )
+            should return 9.009
+         */
+
+        //Then
+        Assertions.assertEquals(0, offerRequest.margin().compareTo(BigDecimal.valueOf(9.009)) );
+    }
+
+    @Test
+    void canIgnoreUpdateMarginIfNotVeryHigh() {
+        //Given
+        //my add
+        given(botOptionService.getOption("my_add"))
+                .willReturn(new BotOption("my_add","VGer81ZPnjD"));
+
+        given(offerRepository.getOffer("VGer81ZPnjD"))
+                .willReturn(new Offer(
+                        "VGer81ZPnjD",
+                        "BTC",
+                        "ZAR",
+                        "buy",
+                        BigDecimal.valueOf(10)
+                ));
+
+        //increase rate option
+        given(botOptionService.getOption("increase_rate"))
+                .willReturn(new BotOption("increase_rate","0.1"));
+
+        //competition adds/offers
+        given(botOptionService.getOption("competition"))
+                .willReturn(new BotOption("competition","sBqtB7oK5bv,Bn7SzybDrwC"));
+
+
+
+        given(offerRepository.getOffer("sBqtB7oK5bv"))
+                .willReturn(new Offer(
+                        "sBqtB7oK5bv",
+                        "BTC",
+                        "ZAR",
+                        "buy",
+                        BigDecimal.valueOf(7)
+                ));
+        given(offerRepository.getOffer("Bn7SzybDrwC"))
+                .willReturn(new Offer(
+                        "Bn7SzybDrwC",
+                        "BTC",
+                        "ZAR",
+                        "buy",
+                        BigDecimal.valueOf(9.99)
+                ));
+
+        //When
+        UpdateOfferRequest offerRequest = underTest.calculateMyOfferNewRate();
+
+
+        //Then
+        Assertions.assertNull(offerRequest);
     }
 }
