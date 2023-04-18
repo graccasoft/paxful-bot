@@ -144,7 +144,7 @@ class OfferServiceImplTest {
                         "BTC",
                         "ZAR",
                         "buy",
-                        BigDecimal.valueOf(1.52)
+                        BigDecimal.valueOf(1.53)
                 ));
         given(offerRepository.getOffer("AS9he7Rxwwf"))
                 .willReturn(new Offer(
@@ -166,11 +166,11 @@ class OfferServiceImplTest {
         UpdateOfferRequest offerRequest = underTest.calculateMyOfferNewRate();
 
         /* 1.52 * (1+ ( 0.1/100 ) )
-            should return 1.52152
+            should return 1.53 - rounded off
          */
 
         //Then
-        Assertions.assertEquals(0, offerRequest.margin().compareTo(BigDecimal.valueOf(1.52152)) );
+        Assertions.assertEquals(BigDecimal.valueOf(1.54), offerRequest.margin() );
     }
 
     @Test

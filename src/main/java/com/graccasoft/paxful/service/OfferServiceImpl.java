@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -69,7 +70,7 @@ public class OfferServiceImpl implements OfferService {
                 //let's check if we are far off and come down a bit
                 //if we are not very high we just return null
                 if( myOffer.margin().subtract( highestMargin )
-                        .divide(highestMargin, new MathContext(8))
+                        .divide(highestMargin, new MathContext(2))
                         .compareTo(BigDecimal.valueOf(MAXIMUM_PERCENTAGE_GAP)) < 0 ){
 
                     return null;
@@ -77,9 +78,9 @@ public class OfferServiceImpl implements OfferService {
             }
             BigDecimal increaseRate =
                     new BigDecimal( botOptionService.getOption("increase_rate").getValue() )
-                            .divide(BigDecimal.valueOf(100), new MathContext(8))
+                            .divide(BigDecimal.valueOf(100), new MathContext(2))
                             .add(BigDecimal.ONE);
-            BigDecimal newMargin = highestMargin.multiply (increaseRate );
+            BigDecimal newMargin = highestMargin.multiply (increaseRate ).round(new MathContext(3, RoundingMode.UP)) ;
             log.info("New margin: {}", newMargin);
             return new UpdateOfferRequest(newMargin, myOffer.id());
         }
