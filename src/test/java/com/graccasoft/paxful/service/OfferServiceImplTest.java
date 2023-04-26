@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -43,43 +44,94 @@ class OfferServiceImplTest {
         given(botOptionService.getOption("competition"))
                 .willReturn(new BotOption("competition","sBqtB7oK5bv,Bn7SzybDrwC,AS9he7Rxwwf,fRcgPsn8RzF"));
 
-        given(offerRepository.getOffer("sBqtB7oK5bv"))
-                .willReturn(new Offer(
-                        "sBqtB7oK5bv",
-                        "BTC",
-                        "ZAR",
-                        "buy",
-                        BigDecimal.valueOf(0.7)
-                ));
-        given(offerRepository.getOffer("Bn7SzybDrwC"))
-                .willReturn(new Offer(
-                        "Bn7SzybDrwC",
-                        "BTC",
-                        "ZAR",
-                        "buy",
-                        BigDecimal.valueOf(1.52)
-                ));
-        given(offerRepository.getOffer("AS9he7Rxwwf"))
-                .willReturn(new Offer(
-                        "AS9he7Rxwwf",
-                        "BTC",
-                        "ZAR",
-                        "buy",
-                        BigDecimal.valueOf(1.4)
-                ));
-        given(offerRepository.getOffer("fRcgPsn8RzF"))
-                .willReturn(new Offer(
-                        "fRcgPsn8RzF",
-                        "BTC",
-                        "ZAR",
-                        "buy",
-                        BigDecimal.valueOf(1.43)
-                ));
+        List<Offer> offers = new ArrayList<>();
+        offers.add(new Offer(
+                "sBqtB7oK5bv",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(0.7),
+                BigDecimal.ZERO
+        ));
+        offers.add(new Offer(
+                "Bn7SzybDrwC",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(1.52),
+                BigDecimal.ZERO
+        ));
+        offers.add(new Offer(
+                "AS9he7Rxwwf",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(1.4),
+                BigDecimal.ZERO
+        ));
+        offers.add(new Offer(
+                "fRcgPsn8RzF",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(1.43),
+                BigDecimal.ZERO
+        ));
+        given(offerRepository.getOffers())
+                .willReturn(offers);
         //When
         List<Offer> sortedOffers = underTest.fetchAllCompetitionOffersInOrder();
 
         //Then
         Assertions.assertEquals(BigDecimal.valueOf(1.52), sortedOffers.get(sortedOffers.size()-1 ).margin());
+    }
+
+    @Test
+    void canFilterCompetitionAdsFromAll() {
+        //Given
+        given(botOptionService.getOption("competition"))
+                .willReturn(new BotOption("competition","sBqtB7oK5bv,Bn7SzybDrwC"));
+
+        List<Offer> offers = new ArrayList<>();
+        offers.add(new Offer(
+                "sBqtB7oK5bv",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(0.7),
+                BigDecimal.ZERO
+        ));
+        offers.add(new Offer(
+                "Bn7SzybDrwC",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(1.52),
+                BigDecimal.ZERO
+        ));
+        offers.add(new Offer(
+                "AS9he7Rxwwf",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(1.4),
+                BigDecimal.ZERO
+        ));
+        offers.add(new Offer(
+                "fRcgPsn8RzF",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(1.43),
+                BigDecimal.ZERO
+        ));
+        given(offerRepository.getOffers())
+                .willReturn(offers);
+        //When
+        List<Offer> sortedOffers = underTest.fetchAllCompetitionOffersInOrder();
+
+        //Then
+        Assertions.assertEquals(2, sortedOffers.size());
     }
 
     @Test
@@ -94,6 +146,7 @@ class OfferServiceImplTest {
                         "BTC",
                         "ZAR",
                         "buy",
+                        BigDecimal.ZERO,
                         BigDecimal.ZERO
                 ));
 
@@ -117,6 +170,7 @@ class OfferServiceImplTest {
                         "BTC",
                         "ZAR",
                         "buy",
+                        BigDecimal.ZERO,
                         BigDecimal.ZERO
                 ));
 
@@ -128,40 +182,43 @@ class OfferServiceImplTest {
         given(botOptionService.getOption("competition"))
                 .willReturn(new BotOption("competition","sBqtB7oK5bv,Bn7SzybDrwC,AS9he7Rxwwf,fRcgPsn8RzF"));
 
+        List<Offer> offers = new ArrayList<>();
+        offers.add(new Offer(
+                "sBqtB7oK5bv",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(0.7),
+                BigDecimal.ZERO
+        ));
+        offers.add(new Offer(
+                "Bn7SzybDrwC",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(1.53),
+                BigDecimal.ZERO
+        ));
+        offers.add(new Offer(
+                "AS9he7Rxwwf",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(1.4),
+                BigDecimal.ZERO
+        ));
+        offers.add(new Offer(
+                "fRcgPsn8RzF",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(1.43),
+                BigDecimal.ZERO
+        ));
 
+        given(offerRepository.getOffers())
+                .willReturn(offers);
 
-        given(offerRepository.getOffer("sBqtB7oK5bv"))
-                .willReturn(new Offer(
-                        "sBqtB7oK5bv",
-                        "BTC",
-                        "ZAR",
-                        "buy",
-                        BigDecimal.valueOf(0.7)
-                ));
-        given(offerRepository.getOffer("Bn7SzybDrwC"))
-                .willReturn(new Offer(
-                        "Bn7SzybDrwC",
-                        "BTC",
-                        "ZAR",
-                        "buy",
-                        BigDecimal.valueOf(1.53)
-                ));
-        given(offerRepository.getOffer("AS9he7Rxwwf"))
-                .willReturn(new Offer(
-                        "AS9he7Rxwwf",
-                        "BTC",
-                        "ZAR",
-                        "buy",
-                        BigDecimal.valueOf(1.4)
-                ));
-        given(offerRepository.getOffer("fRcgPsn8RzF"))
-                .willReturn(new Offer(
-                        "fRcgPsn8RzF",
-                        "BTC",
-                        "ZAR",
-                        "buy",
-                        BigDecimal.valueOf(1.43)
-                ));
         //When
         UpdateOfferRequest offerRequest = underTest.calculateMyOfferNewRate();
 
@@ -173,7 +230,8 @@ class OfferServiceImplTest {
         Assertions.assertEquals(BigDecimal.valueOf(1.54), offerRequest.margin() );
     }
 
-    @Test
+    //@Test
+   //todo: implement this
     void canReduceMarginIfVeryHigh() {
         //Given
         //my add
@@ -186,7 +244,8 @@ class OfferServiceImplTest {
                         "BTC",
                         "ZAR",
                         "buy",
-                        BigDecimal.valueOf(10)
+                        BigDecimal.valueOf(10),
+                        BigDecimal.ZERO
                 ));
 
         //increase rate option
@@ -198,23 +257,26 @@ class OfferServiceImplTest {
                 .willReturn(new BotOption("competition","sBqtB7oK5bv,Bn7SzybDrwC"));
 
 
+        List<Offer> offers = new ArrayList<>();
+        offers.add(new Offer(
+                "sBqtB7oK5bv",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(7),
+                BigDecimal.ZERO
+        ));
+        offers.add(new Offer(
+                "Bn7SzybDrwC",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(9),
+                BigDecimal.ZERO
+        ));
 
-        given(offerRepository.getOffer("sBqtB7oK5bv"))
-                .willReturn(new Offer(
-                        "sBqtB7oK5bv",
-                        "BTC",
-                        "ZAR",
-                        "buy",
-                        BigDecimal.valueOf(7)
-                ));
-        given(offerRepository.getOffer("Bn7SzybDrwC"))
-                .willReturn(new Offer(
-                        "Bn7SzybDrwC",
-                        "BTC",
-                        "ZAR",
-                        "buy",
-                        BigDecimal.valueOf(9)
-                ));
+        given(offerRepository.getOffers())
+                .willReturn(offers);
 
         //When
         UpdateOfferRequest offerRequest = underTest.calculateMyOfferNewRate();
@@ -240,7 +302,8 @@ class OfferServiceImplTest {
                         "BTC",
                         "ZAR",
                         "buy",
-                        BigDecimal.valueOf(10)
+                        BigDecimal.valueOf(10),
+                        BigDecimal.valueOf(1)
                 ));
 
         //increase rate option
@@ -252,23 +315,26 @@ class OfferServiceImplTest {
                 .willReturn(new BotOption("competition","sBqtB7oK5bv,Bn7SzybDrwC"));
 
 
+        List<Offer> offers = new ArrayList<>();
+        offers.add(new Offer(
+                "sBqtB7oK5bv",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(7),
+                BigDecimal.ZERO
+        ));
+        offers.add(new Offer(
+                "Bn7SzybDrwC",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(9.99),
+                BigDecimal.ZERO
+        ));
 
-        given(offerRepository.getOffer("sBqtB7oK5bv"))
-                .willReturn(new Offer(
-                        "sBqtB7oK5bv",
-                        "BTC",
-                        "ZAR",
-                        "buy",
-                        BigDecimal.valueOf(7)
-                ));
-        given(offerRepository.getOffer("Bn7SzybDrwC"))
-                .willReturn(new Offer(
-                        "Bn7SzybDrwC",
-                        "BTC",
-                        "ZAR",
-                        "buy",
-                        BigDecimal.valueOf(9.99)
-                ));
+        given(offerRepository.getOffers())
+                .willReturn(offers);
 
         //When
         UpdateOfferRequest offerRequest = underTest.calculateMyOfferNewRate();
@@ -276,5 +342,60 @@ class OfferServiceImplTest {
 
         //Then
         Assertions.assertNull(offerRequest);
+    }
+
+    @Test
+    void canIncreaseMarginIfMarginIsHigherButFiatIsLower() {
+        //Given
+        //my add
+        given(botOptionService.getOption("my_add"))
+                .willReturn(new BotOption("my_add","VGer81ZPnjD"));
+
+        given(offerRepository.getOffer("VGer81ZPnjD"))
+                .willReturn(new Offer(
+                        "VGer81ZPnjD",
+                        "BTC",
+                        "ZAR",
+                        "buy",
+                        BigDecimal.valueOf(10),
+                        BigDecimal.valueOf(1)
+                ));
+
+        //increase rate option
+        given(botOptionService.getOption("increase_rate"))
+                .willReturn(new BotOption("increase_rate","0.1"));
+
+        //competition adds/offers
+        given(botOptionService.getOption("competition"))
+                .willReturn(new BotOption("competition","sBqtB7oK5bv,Bn7SzybDrwC"));
+
+
+        List<Offer> offers = new ArrayList<>();
+        offers.add(new Offer(
+                "sBqtB7oK5bv",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(7),
+                BigDecimal.ZERO
+        ));
+        offers.add(new Offer(
+                "Bn7SzybDrwC",
+                "BTC",
+                "ZAR",
+                "buy",
+                BigDecimal.valueOf(9),
+                BigDecimal.valueOf(1.5)
+        ));
+
+        given(offerRepository.getOffers())
+                .willReturn(offers);
+
+        //When
+        UpdateOfferRequest offerRequest = underTest.calculateMyOfferNewRate();
+
+        // 10 * (0.1/100) + 1
+        //Then
+        Assertions.assertEquals(offerRequest.margin() ,BigDecimal.valueOf(10.1) );
     }
 }

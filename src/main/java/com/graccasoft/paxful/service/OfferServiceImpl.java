@@ -31,11 +31,13 @@ public class OfferServiceImpl implements OfferService {
 
         BotOption competition = botOptionService.getOption("competition");
         List<String> competitionIds = Arrays.stream(competition.getValue().split(",")).toList();
-        List<Offer> offers = new ArrayList<>();
-        competitionIds.forEach(hashId->{
-            offers.add(  offerRepository.getOffer(hashId));
-        });
-        
+        List<Offer> allOffers = offerRepository.getOffers();
+
+        List<Offer> offers = allOffers
+                .stream()
+                .filter((offer)-> competitionIds.contains( offer.id() ))
+                .toList();
+
         return offers
                 .stream()
                 .sorted(Comparator.comparing(Offer::margin) )
@@ -67,13 +69,13 @@ public class OfferServiceImpl implements OfferService {
 
             //we are at the lead
             if( myOffer.margin().compareTo( highestMargin ) > 0 ){
-                //let's check if we are far off and come down a bit
-                //if we are not very high we just return null
-                if( myOffer.margin().subtract( highestMargin )
-                        .divide(highestMargin, new MathContext(2))
-                        .compareTo(BigDecimal.valueOf(MAXIMUM_PERCENTAGE_GAP)) < 0 ){
-
+                //check if fiat is greater than ours
+                BigDecimal highestFiatPrice = sorted.get(sorted.size()-1 ).fiat_price_per_btc();
+                //return null if our fiat price is leading
+                if( myOffer.fiat_price_per_btc().compareTo(highestFiatPrice) > 0 ){
                     return null;
+                }else{
+                    highestMargin = myOffer.margin();
                 }
             }
             BigDecimal increaseRate =
